@@ -7,14 +7,14 @@ import (
 )
 
 type Compiler struct {
-	instrctions code.Instructions
+	instructions code.Instructions
 	constants   []object.Object
 }
 
 func New() *Compiler {
 
 	return &Compiler{
-		instrctions: code.Instructions{},
+		instructions: code.Instructions{},
 		constants:   []object.Object{},
 	}
 }
@@ -65,8 +65,8 @@ func (c *Compiler) emit(op code.Opcode, operands ...int) int {
 }
 
 func (c *Compiler) addInstruction(ins []byte) int {
-	posNewInstruction := len(c.instrctions)
-	c.instrctions = append(c.instrctions, ins...)
+	posNewInstruction := len(c.instructions)
+	c.instructions = append(c.instructions, ins...)
 	return posNewInstruction
 }
 
@@ -77,12 +77,12 @@ func (c *Compiler) addConstant(obj object.Object) int {
 
 func (c *Compiler) Bytecode() *Bytecode {
 	return &Bytecode{
-		instrctions: c.instrctions,
-		constants:   c.constants,
+		Instructions: c.instructions,
+		Constants:   c.constants,
 	}
 }
 
 type Bytecode struct {
-	instrctions code.Instructions
-	constants   []object.Object
+	Instructions code.Instructions
+	Constants   []object.Object
 }
