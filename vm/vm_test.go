@@ -40,53 +40,63 @@ func runVmTests(t *testing.T, tests []vmTestCase) {
 	t.Helper()
 
 	for _, tt := range tests {
-		program := parse(tt.input)
+		t.Run(tt.input, func(t *testing.T) {
+			program := parse(tt.input)
 
-		comp := compiler.New()
+			comp := compiler.New()
 
-		err := comp.Compile(program)
+			err := comp.Compile(program)
 
-		if err != nil {
-			t.Fatalf("compile error %s", err)
-		}
+			if err != nil {
+				t.Fatalf("compile error %s", err)
+			}
 
-    vm := New(comp.Bytecode())
+			vm := New(comp.Bytecode())
 
-    err = vm.Run()
+			err = vm.Run()
 
-    if err != nil {
-      t.Fatalf("vm error: %s", err)
-    }
+			if err != nil {
+				t.Fatalf("vm error: %s", err)
+			}
 
-    stackElem := vm.LastPoppedStackElem()
+			stackElem := vm.LastPoppedStackElem()
 
-    testExpectedObject(t, tt.expected, stackElem)
-
+			testExpectedObject(t, tt.expected, stackElem)
+		})
 
 	}
 }
 
 func testExpectedObject(t *testing.T, expected interface{}, actual object.Object) {
 
-  t.Helper()
+	t.Helper()
 
-  switch expected := expected.(type) {
-  case int:
-    err := testIntegerObject(int64(expected), actual)
-    if err != nil {
-      t.Fatalf("testIntegerObject failed: %s", err)
-    }
-  }
+	switch expected := expected.(type) {
+	case int:
+		err := testIntegerObject(int64(expected), actual)
+		if err != nil {
+			t.Errorf("testIntegerObject failed: %s", err)
+		}
+	}
 
 }
 
-func TestIntegerArithmetic(t *testing.T){
+func TestIntegerArithmetic(t *testing.T) {
 
-  tests := []vmTestCase {
-    {"1", 1},
-    {"2", 2},
-    {"1 + 2", 3},
-  }
+	tests := []vmTestCase{
+		{"1", 1},
+		{"2", 2},
+		{"1 + 2", 3},
+		{"1 - 2", -1},
+		{"1 * 2", 2},
+		{"4 / 2", 2},
+		{"50 / 2 * 2 + 10 - 5", 55},
+		{"5 + 5 + 5 + 5 - 10", 10},
+		{"2 * 2 * 2 * 2 * 2", 32},
+		{"5 * 2 + 10", 20},
+		{"5 + 2 * 10", 25},
+		{"5 * (2 + 10)", 60},
+	}
 
-  runVmTests(t, tests)
+	runVmTests(t, tests)
 }

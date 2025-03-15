@@ -38,6 +38,36 @@ func TestIntegerArithmetic(t *testing.T) {
 				code.Make(code.OpPop),
 			},
 		},
+		{
+			input:             "1 - 2",
+			expectedConstatns: []interface{}{1, 2},
+			expectedInstructions: []code.Instructions{
+				code.Make(code.OpConstant, 0),
+				code.Make(code.OpConstant, 1),
+				code.Make(code.OpSub),
+				code.Make(code.OpPop),
+			},
+		},
+		{
+			input:             "1 * 2",
+			expectedConstatns: []interface{}{1, 2},
+			expectedInstructions: []code.Instructions{
+				code.Make(code.OpConstant, 0),
+				code.Make(code.OpConstant, 1),
+				code.Make(code.OpMul),
+				code.Make(code.OpPop),
+			},
+		},
+		{
+			input:             "1 / 2",
+			expectedConstatns: []interface{}{1, 2},
+			expectedInstructions: []code.Instructions{
+				code.Make(code.OpConstant, 0),
+				code.Make(code.OpConstant, 1),
+				code.Make(code.OpDiv),
+				code.Make(code.OpPop),
+			},
+		},
 	}
 
 	runCompileTests(t, tests)
@@ -94,7 +124,7 @@ func testInstructions(expected []code.Instructions, actual code.Instructions) er
 
 	for i, ins := range concatted {
 		if ins != actual[i] {
-			return fmt.Errorf("wrong instrction at %d.\nwant=%q\ngot=%q", i, ins, actual[i])
+			return fmt.Errorf("wrong instrction at %d.\nwant=%q\ngot=%q", i, concatted, actual)
 		}
 	}
 
