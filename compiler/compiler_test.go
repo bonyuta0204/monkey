@@ -91,6 +91,66 @@ func TestBooleanExpression(t *testing.T) {
 				code.Make(code.OpPop),
 			},
 		},
+		{
+			input:             "1 > 2",
+			expectedConstatns: []interface{}{1, 2},
+			expectedInstructions: []code.Instructions{
+				code.Make(code.OpConstant, 0),
+				code.Make(code.OpConstant, 1),
+				code.Make(code.OpGreaterThan),
+				code.Make(code.OpPop),
+			},
+		},
+		{
+			input:             "1 < 2",
+			expectedConstatns: []interface{}{2, 1},
+			expectedInstructions: []code.Instructions{
+				code.Make(code.OpConstant, 0),
+				code.Make(code.OpConstant, 1),
+				code.Make(code.OpGreaterThan),
+				code.Make(code.OpPop),
+			},
+		},
+		{
+			input:             "1 == 2",
+			expectedConstatns: []interface{}{1, 2},
+			expectedInstructions: []code.Instructions{
+				code.Make(code.OpConstant, 0),
+				code.Make(code.OpConstant, 1),
+				code.Make(code.OpEqual),
+				code.Make(code.OpPop),
+			},
+		},
+		{
+			input:             "1 != 2",
+			expectedConstatns: []interface{}{1, 2},
+			expectedInstructions: []code.Instructions{
+				code.Make(code.OpConstant, 0),
+				code.Make(code.OpConstant, 1),
+				code.Make(code.OpNotEqual),
+				code.Make(code.OpPop),
+			},
+		},
+		{
+			input:             "true == false",
+			expectedConstatns: []interface{}{},
+			expectedInstructions: []code.Instructions{
+				code.Make(code.OpTrue),
+				code.Make(code.OpFalse),
+				code.Make(code.OpEqual),
+				code.Make(code.OpPop),
+			},
+		},
+		{
+			input:             "true != false",
+			expectedConstatns: []interface{}{},
+			expectedInstructions: []code.Instructions{
+				code.Make(code.OpTrue),
+				code.Make(code.OpFalse),
+				code.Make(code.OpNotEqual),
+				code.Make(code.OpPop),
+			},
+		},
 	}
 
 	runCompileTests(t, tests)
@@ -101,32 +161,32 @@ func runCompileTests(t *testing.T, tests []compilerTestcase) {
 
 	for _, tt := range tests {
 
-		program := parse(tt.input)
+		t.Run(tt.input, func(t *testing.T) {
+			program := parse(tt.input)
 
-		compiler := New()
+			compiler := New()
 
-		err := compiler.Compile(program)
+			err := compiler.Compile(program)
 
-		if err != nil {
-			t.Fatalf("compile error: %s", err)
-		}
+			if err != nil {
+				t.Fatalf("compile error: %s", err)
+			}
 
-		bytecode := compiler.Bytecode()
+			bytecode := compiler.Bytecode()
 
-		err = testInstructions(tt.expectedInstructions, bytecode.Instructions)
+			err = testInstructions(tt.expectedInstructions, bytecode.Instructions)
 
-		if err != nil {
-			t.Fatalf("testInstructions failed. %s", err)
-		}
+			if err != nil {
+				t.Fatalf("testInstructions failed. %s", err)
+			}
 
-		err = testConstants(tt.expectedConstatns, bytecode.Constants)
+			err = testConstants(tt.expectedConstatns, bytecode.Constants)
 
-		if err != nil {
-			t.Fatalf("testConstants failed. %s", err)
-		}
-
+			if err != nil {
+				t.Fatalf("testConstants failed. %s", err)
+			}
+		})
 	}
-
 }
 
 func parse(input string) *ast.Program {

@@ -42,28 +42,50 @@ func (c *Compiler) Compile(node ast.Node) error {
 		c.emit(code.OpPop)
 
 	case *ast.InfixExpression:
-		err := c.Compile(node.Left)
-		if err != nil {
-			return err
-		}
+		if node.Operator == "<" {
+			err := c.Compile(node.Right)
+			if err != nil {
+				return err
+			}
 
-		err = c.Compile(node.Right)
+			err = c.Compile(node.Left)
 
-		if err != nil {
-			return err
-		}
+			if err != nil {
+				return err
+			}
 
-		switch node.Operator {
-		case "+":
-			c.emit(code.OpAdd)
-		case "-":
-			c.emit(code.OpSub)
-		case "*":
-			c.emit(code.OpMul)
-		case "/":
-			c.emit(code.OpDiv)
-		default:
-			return fmt.Errorf("unknown operator %s", node.Operator)
+			c.emit(code.OpGreaterThan)
+		} else {
+
+			err := c.Compile(node.Left)
+			if err != nil {
+				return err
+			}
+
+			err = c.Compile(node.Right)
+
+			if err != nil {
+				return err
+			}
+
+			switch node.Operator {
+			case "+":
+				c.emit(code.OpAdd)
+			case "-":
+				c.emit(code.OpSub)
+			case "*":
+				c.emit(code.OpMul)
+			case "/":
+				c.emit(code.OpDiv)
+			case ">":
+				c.emit(code.OpGreaterThan)
+			case "==":
+				c.emit(code.OpEqual)
+			case "!=":
+				c.emit(code.OpNotEqual)
+			default:
+				return fmt.Errorf("unknown operator %s", node.Operator)
+			}
 		}
 
 	case *ast.IntegerLiteral:
