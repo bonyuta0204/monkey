@@ -27,6 +27,7 @@ func New(bytecode *compiler.Bytecode) *VM {
 
 var True = &object.Boolean{Value: true}
 var False = &object.Boolean{Value: false}
+var Null = &object.Null{}
 
 func (vm *VM) LastPoppedStackElem() object.Object {
 	return vm.stack[vm.sp]
@@ -76,6 +77,12 @@ func (vm *VM) Run() error {
 			}
 		case code.OpFalse:
 			err := vm.push(False)
+			if err != nil {
+				return err
+			}
+
+		case code.OpNull:
+			err := vm.push(Null)
 			if err != nil {
 				return err
 			}

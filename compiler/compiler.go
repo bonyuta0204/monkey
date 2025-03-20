@@ -78,15 +78,18 @@ func (c *Compiler) Compile(node ast.Node) error {
 			c.removeLastPop()
 		}
 
+		jumpPos := c.emit(code.OpJump, 9999)
+		afterConsequencePos := len(c.instructions)
+		c.changeOperand(jumpNotTruthyPos, afterConsequencePos)
+
 		if node.Alternative == nil {
 
-			afterConsequencePos := len(c.instructions)
-			c.changeOperand(jumpNotTruthyPos, afterConsequencePos)
+			c.emit(code.OpNull)
+			afterAlternativePos := len(c.instructions)
+
+			c.changeOperand(jumpPos, afterAlternativePos)
 
 		} else {
-			jumpPos := c.emit(code.OpJump, 9999)
-			afterConsequencePos := len(c.instructions)
-			c.changeOperand(jumpNotTruthyPos, afterConsequencePos)
 
 			err := c.Compile(node.Alternative)
 
