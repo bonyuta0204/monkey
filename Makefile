@@ -5,6 +5,8 @@ BINARY = $(DIST)/monkey
 
 SRCS := $(shell find . -type f -name "*.go")
 
+$(warning SRCS = $(SRCS))
+
 .PHONY: run
 
 
