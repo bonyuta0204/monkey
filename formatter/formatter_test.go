@@ -119,14 +119,12 @@ func TestFormatAST(t *testing.T) {
 				INTEGER: 1
 `,
 		},
-		// Add more test cases here
 	}
 
 	for i, tt := range tests {
 		l := lexer.New(tt.input)
 		p := parser.New(l)
 		program := p.ParseProgram()
-		// TODO: Check for parser errors
 
 		actual := FormatAST(program)
 
