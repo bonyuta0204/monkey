@@ -203,6 +203,17 @@ func (c *Compiler) Compile(node ast.Node) error {
 	case *ast.IntegerLiteral:
 		integer := &object.Integer{Value: node.Value}
 		c.emit(code.OpConstant, c.addConstant(integer))
+	case *ast.ArrayLiteral:
+		numElements := len(node.Elements)
+
+		for _, element := range node.Elements {
+			err := c.Compile(element)
+			if err != nil {
+				return err
+			}
+		}
+
+		c.emit(code.OpArray, numElements)
 
 	case *ast.Boolean:
 		if node.Value {
