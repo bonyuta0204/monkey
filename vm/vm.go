@@ -28,6 +28,13 @@ func New(bytecode *compiler.Bytecode) *VM {
 	}
 }
 
+func NewWithGlobalStore(bytecode *compiler.Bytecode, s []object.Object) *VM {
+	vm := New(bytecode)
+	vm.globals = s
+
+	return vm
+}
+
 var True = &object.Boolean{Value: true}
 var False = &object.Boolean{Value: false}
 var Null = &object.Null{}
@@ -149,6 +156,10 @@ func (vm *VM) executeBinaryOperation(op code.Opcode) error {
 		return vm.executeBinaryIntegerOperation(op, left, right)
 	}
 
+	if leftType == object.STRING_OBJ && rightType == object.STRING_OBJ {
+		return vm.executeBinaryStringOperation(op, left, right)
+	}
+
 	return fmt.Errorf("unsupported binary types for binary operation: %s %s", leftType, rightType)
 }
 
@@ -173,6 +184,23 @@ func (vm *VM) executeBinaryIntegerOperation(op code.Opcode, left, right object.O
 
 	return vm.push(&object.Integer{Value: result})
 }
+
+func (vm *VM) executeBinaryStringOperation(op code.Opcode, left, right object.Object) error {
+	leftValue := left.(*object.String).Value
+	rightValue := right.(*object.String).Value
+
+	var result string
+
+	switch op {
+	case code.OpAdd:
+		result = leftValue + rightValue
+	default:
+		return fmt.Errorf("unknown integer operator: %d", op)
+	}
+
+	return vm.push(&object.String{Value: result})
+}
+
 
 func (vm *VM) push(o object.Object) error {
 	if vm.sp >= StackSize {
