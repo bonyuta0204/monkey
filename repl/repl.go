@@ -1,9 +1,9 @@
 package repl
 
 import (
-	"bufio"
 	"fmt"
 	"io"
+	"github.com/chzyer/readline"
 	"monkey/compiler"
 	"monkey/lexer"
 	"monkey/object"
@@ -14,7 +14,15 @@ import (
 const PROMPT = ">> "
 
 func Start(in io.Reader, out io.Writer) {
-	scanner := bufio.NewScanner(in)
+
+
+	rl, err := readline.New(">> ")
+
+	if err != nil {
+		panic("Failed to start monkey interpreter")
+	}
+
+
 
 	constants := []object.Object{}
 
@@ -23,13 +31,16 @@ func Start(in io.Reader, out io.Writer) {
 	symbolTable := compiler.NewSymbolTable()
 
 	for {
-		fmt.Fprintf(out, PROMPT)
-		scanned := scanner.Scan()
-		if !scanned {
-			return
+
+		line, err := rl.Readline()
+		if err != nil {
+			break
 		}
 
-		line := scanner.Text()
+		if len(line) == 0 {
+			continue
+		}
+
 		l := lexer.New(line)
 		p := parser.New(l)
 
@@ -40,7 +51,7 @@ func Start(in io.Reader, out io.Writer) {
 		}
 
 		comp := compiler.NewWithState(symbolTable, constants)
-		err := comp.Compile(program)
+		err = comp.Compile(program)
 
 		if err != nil {
 			fmt.Fprintf(out, "Woops! Compilation failed:\n %s\n", err)
